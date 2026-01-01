@@ -111,8 +111,8 @@ const ScanScreen = () => {
       
       result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true, // Crop agar fokus ke daun
-        aspect: [1, 1],      // Rasio kotak (sesuai input model)
+        allowsEditing: true, 
+        aspect: [1, 1],      
         quality: 1,
       });
     } else {
@@ -134,32 +134,6 @@ const ScanScreen = () => {
   };
 
 
-
-
-  // const pickFromCamera = async () => {
-  //   const res = await ImagePicker.launchCameraAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //     quality: 0.8,
-  //   });
-
-  //   if (!res.canceled) {
-  //     setSelectedImage(res.assets[0].uri);
-  //   }
-  // };
-
-  // const pickFromGallery = async () => {
-  //   const res = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //     quality: 0.8,
-  //   });
-
-  //   if (!res.canceled) {
-  //     setSelectedImage(res.assets[0].uri);
-  //   }
-  // };
-
-  // 3. FUNGSI UTAMA: ANALISIS GAMBAR
-  
   const analyzeImage = async () => {
     if (!selectedImage) return;
     setIsAnalyzing(true);
