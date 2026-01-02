@@ -32,7 +32,8 @@ import * as tf from '@tensorflow/tfjs';
 
 const CLASS_LABELS = ['Antraknosa', 'Bercak Daun', 'Sehat', 'Virus Kuning'];
 
-const SERVER_URL = 'http://127.0.0.1:5000/predict'; 
+const SERVER_URL = 'https://20a4908b9ad6.ngrok-free.app/predict'; 
+// const SERVER_URL = 'http://127.0.0.1:8000/predict'; 
 // const SERVER_URL = 'http://192.168.100.10:5000/'; 
 
 
@@ -43,41 +44,67 @@ const DISEASE_DATABASE = [
     color: 'text-emerald-600',
     bgColor: 'bg-emerald-100',
     iconColor: 'text-emerald-600',
-    confidence: 98,
     description: 'Kondisi tanaman prima. Daun hijau segar, tidak ada bercak, lubang, atau kerutan.',
-    solution: ['Pertahankan jadwal penyiraman.', 'Lanjutkan pemupukan organik.', 'Pantau hama secara berkala.']
-  },
-  {
-    id: 'anthracnose',
-    name: 'Antraknosa (Patek)',
-    color: 'text-rose-600',
-    bgColor: 'bg-rose-100',
-    iconColor: 'text-rose-600',
-    confidence: 92,
-    description: 'Bercak melingkar coklat/hitam pada daun atau buah. Sering muncul saat lembab tinggi.',
-    solution: ['Potong bagian terinfeksi & bakar.', 'Semprot fungisida (mankozeb).', 'Kurangi kelembapan area.']
-  },
-  {
-    id: 'leaf_curl',
-    name: 'Virus Gemini (Kuning)',
-    color: 'text-amber-600',
-    bgColor: 'bg-amber-100',
-    iconColor: 'text-amber-600',
-    confidence: 89,
-    description: 'Daun menguning terang, mengeriting, dan kerdil. Disebabkan vektor kutu kebul.',
-    solution: ['Cabut tanaman sakit (eradikasi).', 'Basmi kutu kebul.', 'Pasang perangkap kuning.']
+    solution: [
+      'Pertahankan jadwal penyiraman.',
+      'Lanjutkan pemupukan organik.',
+      'Pantau hama secara berkala.'
+    ]
   },
   {
     id: 'cercospora',
-    name: 'Bercak Daun',
+    name: 'Bercak Daun (Cercospora)',
     color: 'text-orange-600',
     bgColor: 'bg-orange-100',
     iconColor: 'text-orange-600',
-    confidence: 94,
-    description: 'Bercak bulat kecil abu-abu dengan tepi coklat. Daun bisa menguning dan rontok.',
-    solution: ['Semprot fungisida sistemik.', 'Bersihkan gulma sekitar.', 'Atur drainase tanah.']
+    description: 'Bercak bulat kecil abu-abu dengan tepi coklat. Daun dapat menguning dan rontok.',
+    solution: [
+      'Semprot fungisida sistemik.',
+      'Bersihkan gulma di sekitar tanaman.',
+      'Atur drainase tanah dengan baik.'
+    ]
+  },
+  {
+    id: 'murda complex(mites,trips)',
+    name: 'Murda Complex (Tungau & Trips)',
+    color: 'text-rose-600',
+    bgColor: 'bg-rose-100',
+    iconColor: 'text-rose-600',
+    description: 'Kerusakan daun akibat serangan tungau dan trips, daun menggulung dan bercak keperakan.',
+    solution: [
+      'Gunakan insektisida/akarisida sesuai dosis.',
+      'Kurangi populasi hama vektor.',
+      'Pantau tanaman secara rutin.'
+    ]
+  },
+  {
+    id: 'nutritional',
+    name: 'Defisiensi Nutrisi',
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-100',
+    iconColor: 'text-amber-600',
+    description: 'Gejala kekurangan unsur hara seperti daun menguning atau pertumbuhan terhambat.',
+    solution: [
+      'Tambahkan pupuk sesuai kebutuhan tanaman.',
+      'Periksa pH tanah.',
+      'Gunakan pupuk berimbang.'
+    ]
+  },
+  {
+    id: 'powdery mildew',
+    name: 'Powdery Mildew (Embun Tepung)',
+    color: 'text-slate-600',
+    bgColor: 'bg-slate-100',
+    iconColor: 'text-slate-600',
+    description: 'Lapisan putih seperti bedak pada permukaan daun akibat infeksi jamur.',
+    solution: [
+      'Semprot fungisida khusus embun tepung.',
+      'Kurangi kelembapan lingkungan.',
+      'Perbaiki sirkulasi udara.'
+    ]
   }
 ];
+
 
 const ScanScreen = () => {
   type ScanResult = {
@@ -134,69 +161,136 @@ const ScanScreen = () => {
   };
 
 
-  const analyzeImage = async () => {
-    if (!selectedImage) return;
-    setIsAnalyzing(true);
+//   const analyzeImage = async () => {
+//     if (!selectedImage) return;
+//     setIsAnalyzing(true);
 
-    try {
-      // Siapkan data file
-      const formData = new FormData();
-      formData.append('file', {
-        uri: selectedImage,
-        name: 'upload.jpg',
-        type: 'image/jpeg',
-      } as any); // Type assertion 'as any' agar TS tidak protes format file
+//     try {
+//       // Siapkan data file
+//       // const formData = new FormData();
+//       // formData.append('file', {
+//       //   uri: selectedImage,
+//       //   name: 'upload.jpg',
+//       //   type: 'image/jpeg',
+//       // } as any); 
 
-      console.log(`Mengirim ke: ${SERVER_URL}`);
+//       const responseImg = await fetch(selectedImage);
+// const blob = await responseImg.blob();
 
-      // Kirim Request
-      const response = await fetch(SERVER_URL, {
-        method: 'POST',
-        body: formData,
-        // headers: {
-        //   'Content-Type': 'multipart/form-data',
-        // },
+// const formData = new FormData();
+// formData.append('file', blob, 'upload.jpg');
+
+
+//       console.log(`Mengirim ke: ${SERVER_URL}`);
+
+//       // Kirim Request
+//       const response = await fetch(SERVER_URL, {
+//         method: 'POST',
+//         body: formData,
+//         // headers: {
+//         //   'Content-Type': 'multipart/form-data',
+//         // },
+//       });
+
+//       const data = await response.json();
+//       console.log("Respon Server:", data);
+
+//       if (data.error) throw new Error(data.error);
+
+//       // Cocokkan nama kelas dari server dengan database lokal
+//       const serverClass = data.kelas || "Tidak Dikenali";
+      
+//       const serverClassId = data.class_id;
+
+// const matchedInfo = DISEASE_DATABASE.find(
+//   d => d.id === serverClassId
+// );
+
+
+//       // Set Hasil untuk ditampilkan
+//       if (matchedInfo) {
+//         setResult({
+//           ...matchedInfo,
+//           confidence: data.confidence
+//         });
+//       } else {
+//         // Fallback jika penyakit tidak ada di database UI
+//         setResult({
+//           name: serverClass,
+//           color: '#334155',
+//           bgColor: '#f1f5f9',
+//           description: "Deskripsi belum tersedia di aplikasi.",
+//           solution: ["Hubungi ahli pertanian."],
+//           confidence: data.confidence
+//         });
+//       }
+
+//     } catch (error) {
+//       console.error("Gagal:", error);
+//       Alert.alert(
+//         "Gagal Terhubung", 
+//         "Pastikan:\n1. Server python (app.py) sudah jalan.\n2. IP Address di kodingan benar.\n3. HP dan Laptop satu jaringan."
+//       );
+//     } finally {
+//       setIsAnalyzing(false);
+//     }
+//   };
+
+const analyzeImage = async () => {
+  if (!selectedImage) return;
+  setIsAnalyzing(true);
+
+  try {
+    const imgResponse = await fetch(selectedImage);
+    const blob = await imgResponse.blob();
+
+    const formData = new FormData();
+    // formData.append('file', blob, 'upload.jpg');
+
+    formData.append('file', {
+  uri: selectedImage,
+  name: 'photo.jpg',
+  type: 'image/jpeg',
+} as any);
+
+    const response = await fetch(SERVER_URL, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    console.log("Respon Server:", data);
+
+    if (data.detail) throw new Error("Format request salah");
+
+    const serverClassId = data.kelas;
+
+    const matchedInfo = DISEASE_DATABASE.find(
+      d => d.id === serverClassId
+    );
+
+    if (matchedInfo) {
+      setResult({
+        ...matchedInfo,
+        confidence: data.confidence
       });
-
-      const data = await response.json();
-      console.log("Respon Server:", data);
-
-      if (data.error) throw new Error(data.error);
-
-      // Cocokkan nama kelas dari server dengan database lokal
-      const serverClass = data.class || "Tidak Dikenali";
-      const matchedInfo = DISEASE_DATABASE.find(d => 
-        d.name.toLowerCase().includes(serverClass.toLowerCase())
-      );
-
-      // Set Hasil untuk ditampilkan
-      if (matchedInfo) {
-        setResult({
-          ...matchedInfo,
-          confidence: data.confidence
-        });
-      } else {
-        // Fallback jika penyakit tidak ada di database UI
-        setResult({
-          name: serverClass,
-          color: '#334155',
-          bgColor: '#f1f5f9',
-          description: "Deskripsi belum tersedia di aplikasi.",
-          solution: ["Hubungi ahli pertanian."],
-          confidence: data.confidence
-        });
-      }
-
-    } catch (error) {
-      console.error("Gagal:", error);
-      Alert.alert(
-        "Gagal Terhubung", 
-        "Pastikan:\n1. Server python (app.py) sudah jalan.\n2. IP Address di kodingan benar.\n3. HP dan Laptop satu jaringan."
-      );
-    } finally {
-      setIsAnalyzing(false);
+    } else {
+      setResult({
+        name: "Tidak Dikenali",
+        description: "Penyakit tidak terdaftar",
+        solution: ["Hubungi ahli pertanian"],
+        confidence: data.confidence
+      });
     }
-  };
+
+  } catch (err) {
+    console.error(err);
+    Alert.alert("Error", "Gagal memproses gambar");
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
+
 
   const resetScan = () => {
     setSelectedImage(null);
